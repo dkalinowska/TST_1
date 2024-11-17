@@ -1,0 +1,37 @@
+@{
+    var currentAction = ViewContext.RouteData.Values["action"] as string;
+    var currentController = ViewContext.RouteData.Values["controller"] as string;
+}
+
+<div class="sidebar" data-color="orange">
+    <div class="logo">
+        <a href="@Url.Action("Index", "Employee")" class="simple-text logo-mini">
+            MP
+        </a>
+        <a href="@Url.Action("Index", "Employee")" class="simple-text logo-normal">
+            Menedżer<br />Pracowników
+        </a>
+    </div>
+    <div class="sidebar-wrapper" id="sidebar-wrapper">
+        <ul class="nav">
+            <li class="@(currentController == "Employee" && currentAction == "Index" ? "active" : "")">
+                <a href="@Url.Action("Index", "Employee")">
+                    <i class="now-ui-icons users_single-02"></i>
+                    <p>Pracownicy</p>
+                </a>
+            </li>
+            <li class="@(currentController == "Employee" && currentAction == "Create" ? "active" : "")">
+                <a href="@Url.Action("Create", "Employee")">
+                    <i class="now-ui-icons ui-1_simple-add"></i>
+                    <p>Dodaj Pracownika</p>
+                </a>
+            </li>
+            <li class="@(currentController == "Employee" && currentAction == "Charts" ? "active" : "")">
+                <a href="@Url.Action("Charts", "Employee")">
+                    <i class="now-ui-icons business_chart-bar-32"></i>
+                    <p>Wykresy</p>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

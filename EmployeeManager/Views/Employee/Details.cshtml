@@ -1,0 +1,55 @@
+@model Employee
+@{
+    ViewBag.Title = "Szczegóły Pracownika";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card card-user">
+            <div class="card-header">
+                <h5 class="title">@Model.FirstName @Model.MiddleName @Model.LastName</h5>
+            </div>
+            <div class="card-body">
+                <div class="card-description">
+                    <dl class="row">
+                        <dt class="col-sm-4">ID</dt>
+                        <dd class="col-sm-8">@Model.Id</dd>
+
+                        <dt class="col-sm-4">Imię</dt>
+                        <dd class="col-sm-8">@Model.FirstName</dd>
+
+                        @if (!string.IsNullOrEmpty(Model.MiddleName))
+                        {
+                            <dt class="col-sm-4">Drugie Imię</dt>
+                            <dd class="col-sm-8">@Model.MiddleName</dd>
+                        }
+
+                        <dt class="col-sm-4">Nazwisko</dt>
+                        <dd class="col-sm-8">@Model.LastName</dd>
+
+                        <dt class="col-sm-4">PESEL</dt>
+                        <dd class="col-sm-8">@Model.PESEL</dd>
+
+                        <dt class="col-sm-4">Data Zatrudnienia</dt>
+                        <dd class="col-sm-8">@Model.EmploymentDate.ToString("dd MMMM yyyy")</dd>
+
+                        <dt class="col-sm-4">Departament</dt>
+                        <dd class="col-sm-8">@Model.Department</dd>
+
+                        <dt class="col-sm-4">Stanowisko</dt>
+                        <dd class="col-sm-8">@Model.Position</dd>
+
+                        <dt class="col-sm-4">Wynagrodzenie</dt>
+                        <dd class="col-sm-8">@Model.Salary.ToString("C")</dd>
+                    </dl>
+                </div>
+            </div>
+            <hr>
+            <div class="button-container">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-round">Edytuj</a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-round">Usuń</a>
+                <a asp-action="Index" class="btn btn-secondary btn-round">Powrót</a>
+            </div>
+        </div>
+    </div>
+</div>

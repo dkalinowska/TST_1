@@ -1,0 +1,194 @@
+@{
+    ViewBag.Title = "Wykresy";
+}
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card  card-chart">
+            <div class="card-header ">
+                <h5 class="card-category">Statystyki departamentów</h5>
+                <h4 class="card-title">Liczba pracowników w departamentach</h4>
+            </div>
+            <div class="card-body ">
+                <canvas id="departmentChart"></canvas>
+            </div>
+            <div class="card-footer ">
+                <div class="stats">
+                    <i class="now-ui-icons loader_refresh spin"></i> Zaktualizowano przed chwilą
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="col-lg-8">
+        <div class="card  card-chart">
+            <div class="card-header ">
+                <h5 class="card-category">Statystyki zatrudnień</h5>
+                <h4 class="card-title">Liczba pracowników zatrudnionych w danym roku</h4>
+            </div>
+            <div class="card-body ">
+                <canvas id="employmentDateChart"></canvas>
+            </div>
+            <div class="card-footer ">
+                <div class="stats">
+                    <i class="now-ui-icons loader_refresh spin"></i> Zaktualizowano przed chwilą
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+     <div class="col-lg-12">
+        <div class="card  card-chart">
+            <div class="card-header ">
+                <h5 class="card-category">Statystyki wynagrodzeń</h5>
+                <h4 class="card-title">Średnie wynagrodzenie na danym stanowisku</h4>
+            </div>
+            <div class="card-body ">
+                <canvas id="averageSalaryChart"></canvas>
+            </div>
+            <div class="card-footer ">
+                <div class="stats">
+                    <i class="now-ui-icons loader_refresh spin"></i> Zaktualizowano przed chwilą
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var orange = '#fd7e14';
+        var yellow = '#ffc107';
+        var green = '#28a745';
+        var blue = '#007bff';
+        var red = '#dc3545';
+
+        $.getJSON('@Url.Action("GetDepartmentChartData")', function (data) {
+            var ctx = document.getElementById('departmentChart').getContext('2d');
+            var labels = data.map(d => d.department);
+            var counts = data.map(d => d.count);
+
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: [orange, green, yellow, blue, red],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        });
+
+        $.getJSON('@Url.Action("GetAverageSalaryChartData")', function (data) {
+            var ctx = document.getElementById('averageSalaryChart').getContext('2d');
+            var labels = data.map(d => d.position);
+            var averageSalaries = data.map(d => d.averageSalary);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Średnie Wynagrodzenie',
+                        data: averageSalaries,
+                        backgroundColor: orange,
+                        borderColor: orange,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return value.toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' });
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    var label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.y.toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' });
+                                    return label;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        });
+
+        $.getJSON('@Url.Action("GetEmploymentDateChartData")', function (data) {
+            var ctx = document.getElementById('employmentDateChart').getContext('2d');
+            var labels = data.map(d => d.year.toString());
+            var counts = data.map(d => d.count);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Liczba zatrudnionych',
+                        data: counts,
+                        fill: false,
+                        borderColor: orange,
+                        backgroundColor: orange,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Rok'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Liczba zatrudnionych'
+                            },
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        });
+    });
+</script>

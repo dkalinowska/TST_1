@@ -1,0 +1,37 @@
+@model Employee
+@{
+    ViewBag.Title = "Usuń Pracownika";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="title">Usuń Pracownika</h5>
+            </div>
+            <div class="card-body">
+                <h5>Czy na pewno chcesz usunąć tego pracownika?</h5>
+                <dl class="row">
+                    <dt class="col-sm-4">Imię i Nazwisko</dt>
+                    <dd class="col-sm-8">@Model.FirstName @Model.LastName</dd>
+
+                    <dt class="col-sm-4">Departament</dt>
+                    <dd class="col-sm-8">@Model.Department</dd>
+
+                    <dt class="col-sm-4">Stanowisko</dt>
+                    <dd class="col-sm-8">@Model.Position</dd>
+
+                    <dt class="col-sm-4">Wynagrodzenie</dt>
+                    <dd class="col-sm-8">@Model.Salary.ToString("C")</dd>
+                </dl>
+            </div>
+            <div class="card-footer">
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-danger">Usuń</button>
+                    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

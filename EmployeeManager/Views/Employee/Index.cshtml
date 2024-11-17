@@ -1,0 +1,126 @@
+@model IEnumerable<Employee>
+@{
+    ViewBag.Title = "Lista Pracowników";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Zamknij">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <span><strong>Info - </strong>@TempData["SuccessMessage"]</span>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Lista Pracowników</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="departmentFilter">Departament:</label>
+                        <select id="departmentFilter" class="form-control">
+                            <option value="">Wszystkie</option>
+                            @foreach (var dept in Model.Select(e => e.Department).Distinct())
+                            {
+                                <option value="@dept">@dept</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="salaryFilter">Wynagrodzenie od:</label>
+                        <input type="number" step="0.01" id="salaryFilter" class="form-control"
+                            placeholder="Minimalne wynagrodzenie" />
+                    </div>
+                </div>
+
+                <table id="employeesTable" class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Imię i nazwisko</th>
+                            <th>Departament</th>
+                            <th>Stanowisko</th>
+                            <th>Wynagrodzenie</th>
+                            <th>Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var employee in Model)
+                            {
+                                <tr>
+                                    <td>@employee.Id</td>
+                                    <td>@employee.FirstName @employee.MiddleName @employee.LastName</td>
+                                    <td>@employee.Department</td>
+                                    <td>@employee.Position</td>
+                                    <td>@employee.Salary.ToString("C")</td>
+                                    <td>
+                                        <a href="@Url.Action("Details", "Employee", new { id = employee.Id })"
+                                            class="btn btn-info btn-sm">Szczegóły</a>
+                                        <a href="@Url.Action("Edit", "Employee", new { id = employee.Id })"
+                                            class="btn btn-warning btn-sm">Edytuj</a>
+                                        <a href="@Url.Action("Delete", "Employee", new { id = employee.Id })"
+                                            class="btn btn-danger btn-sm">Usuń</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center">Brak danych do wyświetlenia.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var table = $('#employeesTable').DataTable({
+            "columnDefs": [
+                { "orderable": false, "targets": -1 }
+            ]
+        });
+
+        function parseSalary(salaryStr) {
+            salaryStr = salaryStr.replace(/[^\d.,-]/g, '');
+            salaryStr = salaryStr.replace(/\s+/g, '');
+            salaryStr = salaryStr.replace(',', '.');
+            return parseFloat(salaryStr) || 0;
+        }
+
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+                var department = $('#departmentFilter').val();
+                var salary = parseFloat($('#salaryFilter').val()) || 0;
+
+                var rowDepartment = data[2];
+                var rowSalary = parseSalary(data[4]) || 0;
+
+                if (department && department !== rowDepartment) {
+                    return false;
+                }
+
+                if (rowSalary < salary) {
+                    return false;
+                }
+
+                return true;
+            }
+        );
+
+        $('#departmentFilter, #salaryFilter').on('change keyup', function () {
+            table.draw();
+        });
+    });
+</script>
