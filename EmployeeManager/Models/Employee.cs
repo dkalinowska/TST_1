@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-
 public class Employee
 {
     public int Id { get; set; }
