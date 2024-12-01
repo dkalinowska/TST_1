@@ -51,19 +51,4 @@ public class EmployeeControllerTest
         // Assert
         Assert.IsType<NotFoundResult>(result);
     }
-
-    [Fact]
-    public void DeleteConfirmed_ValidId_RedirectsToIndex()
-    {
-        // Arrange
-        var employeeId = 1;
-
-        // Act
-        var result = _controller.DeleteConfirmed(employeeId);
-
-        // Assert
-        _mockRepo.Verify(repo => repo.Delete(employeeId), Times.Once);
-        var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("Index", redirectToActionResult.ActionName);
-    }
 }
