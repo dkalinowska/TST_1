@@ -1,61 +1,56 @@
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 public class EmployeeRepository : IEmployeeRepository
 {
-    private readonly string _filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "employees.json");
-
-    public EmployeeRepository()
+    private readonly EmployeeContext _context;
+    public EmployeeRepository(EmployeeContext context)
     {
-        if (!File.Exists(_filePath))
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(_filePath));
-            File.WriteAllText(_filePath, "[]");
-        }
+        _context = context;
     }
 
     public List<Employee> GetAll()
     {
-        var jsonData = File.ReadAllText(_filePath);
-        return JsonConvert.DeserializeObject<List<Employee>>(jsonData);
+        return _context.Employees.ToList();
     }
 
     public Employee GetById(int id)
     {
-        return GetAll().FirstOrDefault(e => e.Id == id);
+        return _context.Employees.Find(id);
     }
 
     public void Add(Employee employee)
     {
-        var employees = GetAll();
-        employees.Add(employee);
-        SaveData(employees);
+        using var transaction = _context.Database.BeginTransaction();
+        try
+        {
+            _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT Employees ON");
+            _context.Employees.Add(employee);
+            _context.SaveChanges();
+            _context.Database.ExecuteSqlRaw("SET IDENTITY_INSERT Employees OFF");
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
+
 
     public void Update(Employee employee)
     {
-        var employees = GetAll();
-        var index = employees.FindIndex(e => e.Id == employee.Id);
-        if (index != -1)
-        {
-            employees[index] = employee;
-            SaveData(employees);
-        }
+        _context.Employees.Update(employee);
+        _context.SaveChanges();
     }
 
     public void Delete(int id)
     {
-        var employees = GetAll();
-        var employee = employees.FirstOrDefault(e => e.Id == id);
+        var employee = GetById(id);
         if (employee != null)
         {
-            employees.Remove(employee);
-            SaveData(employees);
+            _context.Employees.Remove(employee);
+            _context.SaveChanges();
         }
-    }
-
-    private void SaveData(List<Employee> employees)
-    {
-        var jsonData = JsonConvert.SerializeObject(employees, Formatting.Indented);
-        File.WriteAllText(_filePath, jsonData);
     }
 }
